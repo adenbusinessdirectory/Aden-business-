@@ -1,0 +1,29 @@
+type SupabasePublicEnvironment = {
+  url: string;
+  publishableKey: string;
+};
+
+export function getSupabasePublicEnvironment(): SupabasePublicEnvironment {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  const publishableKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL environment variable.",
+    );
+  }
+
+  if (!publishableKey) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY environment variable.",
+    );
+  }
+
+  return {
+    url,
+    publishableKey,
+  };
+}

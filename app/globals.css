@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-950: #062f28;
+  --color-brand-900: #0b493c;
+  --color-brand-800: #0e5b4b;
+  --color-brand-700: #11705c;
+  --color-brand-600: #138a72;
+  --color-brand-500: #19a88c;
+  --color-brand-400: #39c0a4;
+  --color-brand-300: #70d4bd;
+  --color-brand-200: #a7e8d8;
+  --color-brand-100: #dff7f0;
+  --color-brand-50: #f2fbf8;
+
+  --color-gold-700: #8b681d;
+  --color-gold-600: #aa8127;
+  --color-gold-500: #c99d3a;
+  --color-gold-100: #f8edcf;
+  --color-gold-50: #fcf8eb;
+
+  --color-surface: #f7f9f8;
+  --color-border-soft: #e5ebe8;
+
+  --font-sans:
+    "SF Arabic",
+    "Geeza Pro",
+    "Tahoma",
+    "Arial",
+    system-ui,
+    sans-serif;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #12211d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family:
+    "SF Arabic",
+    "Geeza Pro",
+    Tahoma,
+    Arial,
+    system-ui,
+    sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: #dff7f0;
+  color: #062f28;
+}
+
+.container-shell {
+  width: min(100% - 2rem, 76rem);
+  margin-inline: auto;
+}
+
+.section-padding {
+  padding-block: 4.5rem;
+}
+
+.section-heading {
+  color: #10241e;
+  font-size: clamp(1.65rem, 4vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.025em;
+}
+
+.section-description {
+  margin-top: 0.75rem;
+  max-width: 42rem;
+  color: #62716c;
+  font-size: 1rem;
+  line-height: 1.9;
+}
+
+.surface-card {
+  border: 1px solid #e5ebe8;
+  border-radius: 1.5rem;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgb(6 47 40 / 0.03),
+    0 12px 32px rgb(6 47 40 / 0.04);
+}
+
+.focus-ring:focus-visible {
+  outline: 3px solid rgb(25 168 140 / 0.25);
+  outline-offset: 3px;
+}
+
+.hero-pattern {
+  background:
+    radial-gradient(
+      circle at 15% 15%,
+      rgb(57 192 164 / 0.17),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 20%,
+      rgb(201 157 58 / 0.12),
+      transparent 25%
+    ),
+    linear-gradient(135deg, #062f28 0%, #0b493c 52%, #0d5b4a 100%);
+}
+
+@media (max-width: 640px) {
+  .container-shell {
+    width: min(100% - 1.25rem, 76rem);
+  }
+
+  .section-padding {
+    padding-block: 3.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

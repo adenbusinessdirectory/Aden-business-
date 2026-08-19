@@ -4,6 +4,16 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
 
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        "r4x766qvq64fi6v4-3000.app.github.dev",
+        "expert-zebra-r4x766qvq64fi6v4-3000.app.github.dev",
+        "localhost:3000",
+      ],
+    },
+  },
+
   images: {
     formats: ["image/avif", "image/webp"],
   },
@@ -27,7 +37,8 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(self), payment=()",
+            value:
+              "camera=(), microphone=(), geolocation=(self), payment=()",
           },
         ],
       },

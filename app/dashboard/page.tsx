@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
+  AlertTriangle,
   BarChart3,
   Building2,
   Eye,
@@ -20,8 +22,18 @@ export const metadata: Metadata = {
   title: "لوحة التاجر",
 };
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams: Promise<{
+    error?: string;
+    success?: string;
+  }>;
+};
+
+export default async function DashboardPage({
+  searchParams,
+}: DashboardPageProps) {
   const context = await requireMerchant();
+  const params = await searchParams;
 
   if (context.role === "admin") {
     redirect("/admin");
@@ -45,6 +57,7 @@ export default async function DashboardPage() {
         average_rating,
         reviews_count,
         views_count,
+        rejection_reason,
         created_at
       `,
     )
@@ -62,6 +75,8 @@ export default async function DashboardPage() {
 
   const business =
     businesses?.[0] ?? null;
+
+  const otherBusinesses = businesses?.slice(1) ?? [];
 
   return (
     <section className="min-h-[calc(100vh-72px)] bg-surface py-8 sm:py-12">
@@ -83,6 +98,19 @@ export default async function DashboardPage() {
               من مكان واحد.
             </p>
           </div>
+
+          {params.success === "updated" ? (
+            <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+              تم تحديث بيانات النشاط وإرسالها للمراجعة من جديد.
+            </div>
+          ) : null}
+
+          {params.error ? (
+            <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              <AlertTriangle className="h-5 w-5" />
+              تعذر تنفيذ العملية: {decodeURIComponent(params.error)}
+            </div>
+          ) : null}
 
           {!business ? (
             <div className="surface-card p-8 text-center">
@@ -135,6 +163,21 @@ export default async function DashboardPage() {
                     ) : null}
                   </div>
                 </div>
+
+                {business.status === "rejected" && business.rejection_reason ? (
+                  <div className="mt-5 rounded-xl border border-red-100 bg-red-50 p-4 text-sm leading-7 text-red-700">
+                    سبب الرفض: {business.rejection_reason}
+                  </div>
+                ) : null}
+
+                {business.status !== "approved" ? (
+                  <Link
+                    href={`/dashboard/edit/${business.id}`}
+                    className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-brand-800 px-5 text-sm font-extrabold text-white hover:bg-brand-900"
+                  >
+                    تعديل وإرسال للمراجعة
+                  </Link>
+                ) : null}
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -221,6 +264,23 @@ export default async function DashboardPage() {
                   </p>
                 </div>
               </div>
+
+              {otherBusinesses.length > 0 ? (
+                <div className="surface-card p-6">
+                  <h2 className="text-lg font-black text-slate-950">أنشطة أخرى مرتبطة بالحساب</h2>
+                  <div className="mt-4 grid gap-3">
+                    {otherBusinesses.map((item) => (
+                      <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border-soft p-4">
+                        <div>
+                          <p className="font-extrabold">{item.name_ar}</p>
+                          <p className="mt-1 text-xs text-slate-500">الحالة: {item.status}</p>
+                        </div>
+                        {item.status !== "approved" ? <Link href={`/dashboard/edit/${item.id}`} className="text-sm font-extrabold text-brand-800">تعديل</Link> : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </>
           )}
         </div>

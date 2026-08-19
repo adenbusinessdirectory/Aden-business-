@@ -232,25 +232,29 @@ export default async function DashboardPage({
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="surface-card p-6">
+                  <Link href="/dashboard/products" className="block">
                   <Package className="h-6 w-6 text-brand-700" />
                   <h3 className="mt-4 font-black">
                     المنتجات
                   </h3>
                   <p className="mt-2 text-sm leading-7 text-slate-500">
                     إدارة منتجات النشاط ستُربط
-                    بالمرحلة التالية.
+                    من هنا.
                   </p>
+                  </Link>
                 </div>
 
                 <div className="surface-card p-6">
+                  <Link href="/dashboard/offers" className="block">
                   <Tag className="h-6 w-6 text-brand-700" />
                   <h3 className="mt-4 font-black">
                     العروض
                   </h3>
                   <p className="mt-2 text-sm leading-7 text-slate-500">
                     إضافة وإدارة العروض الخاصة
-                    بالنشاط.
+                    بالنشاط من هنا.
                   </p>
+                  </Link>
                 </div>
 
                 <div className="surface-card p-6">

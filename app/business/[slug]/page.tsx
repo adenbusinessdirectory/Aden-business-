@@ -1,0 +1,29 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, Building2, CalendarDays, MapPin, Package, Phone, Tag } from "lucide-react";
+
+import { createClient } from "@/lib/supabase/server";
+
+type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data } = await supabase.from("businesses").select("name_ar").eq("slug", slug).eq("status", "approved").maybeSingle();
+  return { title: data?.name_ar ?? "النشاط التجاري" };
+}
+
+export default async function BusinessPage({ params }: Props) {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data: business } = await supabase.from("businesses").select("id, name_ar, description, phone, whatsapp, address, is_verified, average_rating, reviews_count, category_id, area_id").eq("slug", slug).eq("status", "approved").maybeSingle();
+  if (!business) return <section className="container-shell py-20 text-center"><Building2 className="mx-auto h-10 w-10 text-brand-300" /><h1 className="mt-5 text-2xl font-black">النشاط غير موجود</h1><Link href="/businesses" className="mt-5 inline-flex font-extrabold text-brand-800">العودة إلى دليل الأعمال</Link></section>;
+  const [{ data: category }, { data: area }, { data: products }, { data: offers }] = await Promise.all([
+    supabase.from("categories").select("name_ar").eq("id", business.category_id).maybeSingle(),
+    supabase.from("areas").select("name_ar").eq("id", business.area_id).maybeSingle(),
+    supabase.from("products").select("id, name_ar, description, price").eq("business_id", business.id).order("created_at", { ascending: false }),
+    supabase.from("offers").select("id, title_ar, description, discount_percentage, starts_at").eq("business_id", business.id).order("created_at", { ascending: false }),
+  ]);
+
+  return <section className="min-h-[calc(100vh-72px)] bg-surface py-8 sm:py-12"><div className="container-shell"><Link href="/businesses" className="inline-flex items-center gap-2 text-sm font-extrabold text-brand-800"><ArrowRight className="h-4 w-4" /> دليل الأعمال</Link><div className="surface-card mt-5 overflow-hidden"><div className="bg-gradient-to-br from-brand-950 via-brand-800 to-brand-600 px-6 py-12 text-white sm:px-10"><Building2 className="h-12 w-12 text-brand-200" /><div className="mt-6 flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-3xl font-black">{business.name_ar}</h1><p className="mt-2 text-white/70">{category?.name_ar ?? "نشاط تجاري"}</p></div>{business.is_verified ? <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm font-extrabold">نشاط موثق</span> : null}</div></div><div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[1fr_18rem]"><div><p className="text-base leading-8 text-slate-600">{business.description ?? "مرحبًا بكم في هذا النشاط التجاري."}</p><div className="mt-6 flex flex-wrap gap-4 text-sm text-slate-500"><span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4 text-brand-700" />{area?.name_ar ?? business.address ?? "عدن"}</span><span>التقييم {Number(business.average_rating ?? 0).toFixed(1)} ({business.reviews_count ?? 0})</span></div><div className="mt-6 flex flex-wrap gap-3">{business.phone ? <a href={`tel:${business.phone}`} className="inline-flex items-center gap-2 rounded-xl bg-brand-800 px-4 py-3 text-sm font-extrabold text-white"><Phone className="h-4 w-4" /> اتصال</a> : null}{business.whatsapp ? <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-extrabold text-brand-800">واتساب</a> : null}</div></div><aside className="rounded-2xl border border-border-soft bg-surface p-5"><p className="text-xs text-slate-400">العنوان</p><p className="mt-2 font-extrabold text-slate-800">{business.address ?? area?.name_ar ?? "عدن"}</p></aside></div></div>{products?.length ? <section className="mt-8"><div className="flex items-center gap-2"><Package className="h-5 w-5 text-brand-700" /><h2 className="text-2xl font-black">المنتجات</h2></div><div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">{products.map((product) => <article key={product.id} className="surface-card p-5"><Package className="h-7 w-7 text-brand-300" /><h3 className="mt-4 font-black">{product.name_ar}</h3>{product.description ? <p className="mt-2 text-sm leading-6 text-slate-500">{product.description}</p> : null}{product.price !== null && product.price !== undefined ? <p className="mt-3 font-black text-brand-800">{Number(product.price).toLocaleString("ar-YE")} ر.ي</p> : null}</article>)}</div></section> : null}{offers?.length ? <section className="mt-8"><div className="flex items-center gap-2"><Tag className="h-5 w-5 text-gold-600" /><h2 className="text-2xl font-black">العروض</h2></div><div className="mt-4 grid gap-4 md:grid-cols-2">{offers.map((offer) => <article key={offer.id} className="surface-card p-5"><div className="flex items-center justify-between gap-3"><h3 className="font-black">{offer.title_ar}</h3>{offer.discount_percentage !== null && offer.discount_percentage !== undefined ? <span className="rounded-full bg-gold-50 px-3 py-1 text-xs font-extrabold text-gold-700">خصم {offer.discount_percentage}%</span> : null}</div>{offer.description ? <p className="mt-2 text-sm leading-7 text-slate-500">{offer.description}</p> : null}{offer.starts_at ? <p className="mt-3 inline-flex items-center gap-2 text-xs text-slate-400"><CalendarDays className="h-4 w-4" /> يبدأ {new Date(offer.starts_at).toLocaleDateString("ar-YE")}</p> : null}</article>)}</div></section> : null}</div></section>;
+}
